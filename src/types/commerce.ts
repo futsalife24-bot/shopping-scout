@@ -96,3 +96,55 @@ export interface UnitMetric {
   pricePer100g?: number;
   pricePerDay?: number;
 }
+
+/** A stable, user-owned product record. Do not infer market-wide facts from it. */
+export interface Product {
+  id: string;
+  canonicalName: string;
+  manufacturer?: string;
+  janCode?: string;
+  category?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PackageSnapshot {
+  rawText: string;
+  parsed: ParsedLabel['packageSpec'];
+}
+
+export interface PriceObservation {
+  id: string;
+  productId: string;
+  storeName?: string;
+  storeProductCode?: string;
+  capturedAt: string;
+  currentPrice: number;
+  regularPrice?: number;
+  discountAmount?: number;
+  packageSnapshot: PackageSnapshot;
+  derivedMetrics: UnitMetric;
+  ocrRawText: string;
+  ocrConfidence?: number;
+  userConfirmed: boolean;
+}
+
+export interface OcrTiming {
+  preprocessingMs: number;
+  workerWarmupMs: number;
+  ocrMs: number;
+  parsingMs: number;
+}
+
+export interface OcrLine {
+  text: string;
+  confidence: number;
+  bbox: { x0: number; y0: number; x1: number; y1: number };
+}
+
+export interface OcrResult {
+  text: string;
+  confidence: number;
+  lines: OcrLine[];
+  timing: OcrTiming;
+}

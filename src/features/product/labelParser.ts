@@ -119,9 +119,10 @@ function parseLinePriceCandidates(line: string, sourceLine: number): PriceLineCa
     const start = match.index ?? 0;
     const prev = normalizedLine[start - 1] ?? '';
     const next = normalizedLine[start + raw.length] ?? '';
+    const hasPriceContext = /(?:円|税込|価格|値札)/u.test(normalizedLine);
 
-    if (/[a-zA-ZＡ-ｚぁ-んァ-ヶ一-龯]/u.test(prev)) continue;
-    if (/[a-zA-ZＡ-ｚぁ-んァ-ヶ一-龯]/u.test(next)) continue;
+    if (/[a-zA-ZＡ-ｚぁ-んァ-ヶ一-龯]/u.test(prev) && !hasPriceContext) continue;
+    if (/[a-zA-ZＡ-ｚぁ-んァ-ヶ一-龯]/u.test(next) && !hasPriceContext) continue;
     if (prev === ',') continue;
     if (!candidates.some((entry) => entry.amount === amount && entry.sourceLine === sourceLine)) {
       candidates.push({ amount, sourceLine, rawText: raw, kind: 'candidate' });

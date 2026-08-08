@@ -1,25 +1,49 @@
-* {
-  box-sizing: border-box;
-}
-
-body {
-  margin: 0;
-  font-family: 'Noto Sans JP', 'Yu Gothic', 'Hiragino Kaku Gothic ProN', sans-serif;
-  background: radial-gradient(circle at top, #f8fafc, #dbeafe);
-  color: #0f172a;
-}
-
-.page {
-  min-height: 100vh;
-  padding: 2.5rem 1.5rem;
-  max-width: 800px;
-  margin: 0 auto;
-}
-
-.card {
-  margin-top: 1.5rem;
-  padding: 1rem 1.25rem;
-  border-radius: 0.75rem;
-  background: #ffffffcc;
-  border: 1px solid #e2e8f0;
-}
+:root { color: #17221d; background: #f3f7f2; font-family: "Noto Sans JP", "Yu Gothic", sans-serif; }
+* { box-sizing: border-box; }
+body { margin: 0; min-width: 320px; background: #f3f7f2; }
+button, input, textarea { font: inherit; }
+button { cursor: pointer; }
+.page { min-height: 100dvh; max-width: 680px; margin: 0 auto; padding: 20px 16px calc(102px + env(safe-area-inset-bottom)); }
+.app-header { margin: 8px 4px 24px; }
+.eyebrow { color: #2c7753; font-size: .72rem; font-weight: 800; letter-spacing: .1em; }
+h1 { margin: 4px 0; font-size: clamp(1.8rem, 8vw, 2.45rem); letter-spacing: -.06em; }
+h2 { margin: 0 0 10px; font-size: 1.35rem; }
+h3 { margin: 0 0 10px; font-size: 1.05rem; }
+p { line-height: 1.65; }
+.card { background: #fff; border: 1px solid #dce8de; border-radius: 20px; padding: 20px; box-shadow: 0 8px 24px #24452b0d; }
+.home-card { margin-top: 22px; }
+.home-actions { display: grid; gap: 12px; margin: 24px 0 16px; }
+.button { min-height: 54px; display: inline-flex; justify-content: center; align-items: center; border: 0; border-radius: 14px; padding: 12px 18px; font-weight: 800; text-decoration: none; }
+.button.primary { color: #fff; background: #147343; box-shadow: 0 4px 0 #0c512e; }
+.button.primary:active { transform: translateY(2px); box-shadow: 0 2px 0 #0c512e; }
+.button.secondary { color: #165a37; background: #eaf5ed; }
+.button input { display: none; }
+.muted { color: #647269; font-size: .88rem; }
+.notice { margin: 0 0 16px; border-radius: 12px; padding: 12px 14px; color: #245a3b; background: #eaf5ed; font-size: .92rem; }
+.notice.error { color: #8d2828; background: #fff0f0; }
+.capture-view { position: fixed; inset: 0; z-index: 2; background: #07140e; color: #fff; display: flex; flex-direction: column; justify-content: center; padding: 20px 16px calc(20px + env(safe-area-inset-bottom)); }
+.camera { width: 100%; max-height: 65dvh; object-fit: cover; border-radius: 16px; background: #111; }
+.guide-frame { position: absolute; inset: 19% 9% 29%; border: 3px solid #baf4d0; border-radius: 16px; pointer-events: none; box-shadow: 0 0 0 999px #0005; }
+.capture-view p { text-align: center; margin: 16px 0; }
+.bottom-actions { position: sticky; bottom: 0; display: grid; grid-template-columns: 1fr 1.4fr; gap: 10px; margin-top: 22px; padding-top: 12px; background: inherit; }
+.image-stage { position: relative; width: 100%; overflow: hidden; border-radius: 14px; background: #223; line-height: 0; }
+.image-stage img { display: block; width: 100%; max-height: 56dvh; object-fit: contain; }
+.crop-frame { position: absolute; border: 3px solid #baf4d0; box-shadow: 0 0 0 100vmax #0008; pointer-events: none; }
+.crop-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; font-size: .84rem; }
+.crop-controls label { display: grid; gap: 5px; color: #425247; }
+.crop-controls input { width: 100%; accent-color: #147343; }
+.processing { text-align: center; }
+.processing img { display: block; width: 100%; max-height: 180px; object-fit: contain; border-radius: 12px; margin: 16px 0; }
+progress { width: 100%; height: 12px; accent-color: #147343; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 18px 0; }
+label { display: grid; gap: 6px; color: #435148; font-size: .88rem; font-weight: 700; }
+input, textarea { width: 100%; border: 1px solid #becdc1; border-radius: 10px; padding: 11px; color: #17221d; background: #fff; }
+input:focus, textarea:focus { outline: 3px solid #b8e6ca; border-color: #147343; }
+.wide-label { margin-top: 4px; }
+.text-button { margin: 12px 12px 0 0; padding: 8px 0; border: 0; color: #12623a; background: transparent; font-weight: 800; text-decoration: underline; }
+.metrics { margin-top: 20px; padding: 16px; border-radius: 14px; background: #f0f8f2; }
+dl { display: grid; grid-template-columns: 1fr auto; gap: 8px 12px; margin: 0; }
+dt { color: #516157; } dd { margin: 0; font-weight: 800; }
+.timing { border-top: 1px solid #dce8de; padding-top: 12px; }
+.saved { text-align: center; }
+@media (max-width: 430px) { .form-grid, .crop-controls { grid-template-columns: 1fr; } .card { padding: 17px; } }

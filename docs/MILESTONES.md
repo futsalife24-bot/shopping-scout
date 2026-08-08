@@ -1,32 +1,35 @@
-# Milestone計画（5工程）
+# Milestone計画
 
-## Milestone 0: セットアップ
-- 本番実装なし
-- 仕様保存（`docs/SHOPPING_SCOUT_SPEC.md`）
-- AGENTS / CLAUDE / PWA基盤
-- fixture + テストハーネス作成
-- TypeScript strict + Vitest 導線
+## Milestone 0 — 完了
 
-## Milestone 1: Capture → Crop → OCR → Confirm
-- カメラ・画像取得は実装しないが、画面遷移と確定前確認画面の契約を確立する。
-- OCR結果の不確実性を扱う UI フローを先行定義。
+- Vite + React + TypeScript strict + PWA + Vitest
+- 仕様書、恒久ルール、アーキテクチャ、引き継ぎ資料
+- 12件fixtureと純粋な価格・容量・単価ロジック
 
-## Milestone 2: Parse → Unit Calculation → IndexedDB
-- 本格のOCR入力を受け入れるモデルを完成
-- 製品候補・価格候補・容量/数量の解釈を拡張
-- localOnly前提で IndexedDB に保存（Phase 1後半）
+## Milestone 1 — 完了（Android実機QAは次工程）
 
-## Milestone 3: History → Score → Chart → Favorites
-- 価格履歴と比較評価を追加
-- 単価指標を時系列可視化
-- お気に入り/除外ルール追加
+- 背面カメラ要求と画像ファイル選択
+- 撮影後のstream停止
+- 値札ガイド枠、手動切抜き、90度回転、画像品質注意
+- 最小前処理とTesseract `jpn+eng` Worker
+- OCR進捗と初回取得失敗時の案内
+- 候補を編集できる確認画面
 
-## Milestone 4: ChatGPT Share → Backup → Offline polish
-- 共有先を外部送信不要設計を維持しつつ、エクスポート方式を提供
-- バックアップ（JSON/ローカル保存）
-- オフライン耐性の最終調整
+## Milestone 2 — 完了（基礎範囲）
 
-## Milestone 5: Android実機QA → OCR精度改善 → Release
-- Android Chrome 実機で Install / Offline / 起動体験確認
-- OCR誤認ケースを fixture拡張で回収
-- 段階的リリース
+- 文字正規化、価格候補、割引、容量、個数、セット構成、単価計算
+- Dexie schema version 1のProduct / PriceObservation
+- JAN・同一店舗＋商品番号の完全一致照合（曖昧一致は統合しない）
+- ユーザー確認済みのtransaction保存と初回記録メッセージ
+
+## Milestone 3 — 次
+
+- 保存済み観測値の一覧と価格履歴
+- 同一商品確認UI（メーカー＋名称＋容量の候補提示を含む）
+- 根拠がある場合だけの価格お得度、グラフ、お気に入り、目標価格
+
+## Milestone 4以降 — 未着手
+
+- ChatGPT共有、JSONバックアップ、オフライン磨き込み
+- ネット価格検索、同期、家族共有、広告、課金は別途の仕様承認後に検討
+- Android実機でのカメラ・OCR精度・PWA install・オフラインQA

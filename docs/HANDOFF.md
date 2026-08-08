@@ -1,71 +1,58 @@
 # HANDOFF
 
-## 現在の状況
-- branch: `master`
-- latest commit: `29170ed`（`chore: bootstrap shopping scout pwa`）
+更新日: 2026-08-09
 
-## 今回の実装内容（本実装は未着手）
-- `docs/SHOPPING_SCOUT_SPEC.md`（統合仕様を保存）
-- `AGENTS.md` / `CLAUDE.md`（エージェント共通ルール・引き継ぎ指針）
-- PWA最小基盤（manifest / service worker /  `vite-plugin-pwa` 設定）
-- 純粋ロジック分離:
-  - `parseLabelText`
-  - `calculateUnitMetrics`
-- 型定義（`ProductCandidate`, `PriceCandidate`, `PackageSpec`, `PackageComponent`, `ParsedLabel`, `UnitMetric`, `ParseConfidence`）
-- fixture 12件:
-  - `tests/fixtures/shopping-scout-cases.json`
-- テスト:
-  - `tests/label-parser.spec.ts`
+## 実装済み
 
-## 意図的に実装しなかった内容（Phase 1除外）
-- Tesseract.js/OCR本体
-- カメラ
-- 画像切り抜き
-- 画像前処理
-- IndexedDB
-- 価格履歴UI
-- グラフ
-- チャット共有
-- 有料API / 外部価格API
-- スクレイピング
+- Vite/React/strict TypeScript/PWA/Vitestの基盤とGitHub Pages対応。
+- 12件fixtureを通す純粋なラベル解析・単価計算。
+- Android向けの値札撮影、画像選択、ガイド枠、stream停止、手動切抜き、回転、品質注意。
+- ブラウザ内Tesseract.js `jpn+eng` Worker、進捗表示、最小前処理、Worker再利用。
+- OCR候補の手修正、再解析、単価表示、エラー案内。
+- Dexie version 1でのProduct/PriceObservation分離、完全一致照合、transaction保存。
+- 初回記録時にお得度を判定しない保存完了表示。
 
-## 重要ファイル
-- `src/features/product/labelParser.ts`
-- `src/features/product/index.ts`
-- `src/types/commerce.ts`
-- `src/main.tsx`, `src/app/App.tsx`, `src/styles.css`
-- `vite.config.ts`, `vitest.config.ts`, `tsconfig*.json`
-- `public/manifest.webmanifest`
-- `.github/workflows/gh-pages.yml`
-- `package.json`
+## 主要ファイル
 
-## 主要コマンド
-- `npm install`（Windowsでは `npm.cmd install`）
-- `npm run typecheck`
-- `npm run test`
-- `npm run test:run`
-- `npm run build`
+- `src/app/App.tsx`: 画面フロー。
+- `src/features/ocr/imageTools.ts`: 切抜き、品質確認、前処理。
+- `src/features/ocr/tesseractClient.ts`: Workerの再利用とOCR計測。
+- `src/features/product/labelParser.ts`: 純粋な解析・単価計算。
+- `src/features/storage/shoppingScoutDb.ts`: Dexie schemaと保存。
+- `src/types/commerce.ts`: Product/Observation/OCRを含む共有型。
+- `tests/label-parser.spec.ts`: 12 fixture。
+- `tests/shopping-scout-db.spec.ts`: IndexedDBモデル。
 
-## test/build 結果
-- typecheck: success
-- test: success（12件 fixture）
-- build: success（`dist/` 生成）
+## 検証結果
 
-## 既知の問題
-- `npm audit` は依存の脆弱性を報告（本PoCの範囲では未対応）
-- 実行環境PowerShellは実行ポリシー制約あり、`npm` は `npm.cmd` で実行
+2026-08-09に以下を通過。
 
-## 次に進む Milestone
-1. Capture → Crop → OCR → Confirm
-2. Parse → Unit Calculation → IndexedDB
-3. History → Score → Chart → Favorites
-4. ChatGPT Share → Backup → Offline polish
-5. Android実機QA → OCR精度改善 → Release
+- `npm run typecheck`: success
+- `npm run test:run`: 3 files / 16 tests passed
+- `npm run build`: success（PWA service worker生成を確認）
+- ローカルPWAを393x852で確認。画像選択→切抜き→OCR→手修正→保存完了まで操作済み。
 
-## 絶対に破ってはいけない制約
-- `SHOPPING_SCOUT_SPEC.md`をSingle Source of Truthとして固定
-- 無料制約（有料API禁止）
-- 外部送信前提のスクレイピングや価格API禁止
-- OCR誤認のハードコード回避
-- テストを削除・スキップして進捗を成立扱いしない
-- 既存ユーザー変更を破壊しない
+OCRの実測（1200x900のSVG値札スモーク画像、ブラウザ内）:
+
+- 1回目: 前処理12ms / Worker準備186ms / OCR86ms / 解析2ms
+- 同じWorkerの2回目: 前処理4ms / Worker準備0ms / OCR48ms / 解析0ms
+
+これは開発環境・モデルがキャッシュ済みの計測であり、Android実機や初回言語モデルダウンロードを含む時間ではない。
+
+## 意図的に未実装
+
+- 価格履歴一覧、推移グラフ、価格お得度、目標価格、お気に入り。
+- 名称類似度による同一商品候補と統合確認UI。
+- ChatGPT共有、JSONバックアップ、ネット価格検索、監視、同期、共有、広告、課金。
+- 毎フレームOCR、効能・品質評価。
+
+## 既知の問題・注意
+
+- 実Android端末のカメラ権限、PWA install、低速回線での初回OCRモデル取得は未QA。
+- 実店舗の値札画像によるOCR精度評価は未実施。12 fixtureはOCR後文字列の解析テストである。
+- OCR bbox/confidenceを使う候補順位付けは実装済みだが、実店舗値札での重み検証は未実施。
+- `npm audit`は依存ツリーに5件の脆弱性を報告。`audit fix --force`は破壊的になり得るため未実行。
+
+## 次Milestone
+
+Milestone 3として、保存済み履歴の閲覧、同一商品の明示確認、容量同一条件でのみ比較する「価格お得度（保留表示あり）」を実装する。その前にAndroid Chrome実機でカメラ・OCR・PWA installをQAする。

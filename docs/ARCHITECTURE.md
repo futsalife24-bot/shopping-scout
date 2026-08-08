@@ -1,30 +1,30 @@
-# SHOPPING SCOUT アーキテクチャ（導入版）
+# Shopping Scout アーキテクチャ
 
 ## 方針
-Phase 1では `OCR` を除外し、OCR結果文字列を前提にした純粋ロジックを土台化する。  
-UI と解析エンジンは責務分離し、将来の置換を容易にする。
 
-## 主要ディレクトリ
-- `src/app/`: アプリのエントリ画面
-- `src/features/product/`: 商品ラベル解析ロジック（OCR非依存）
-- `src/types/`: 型定義（`ProductCandidate` / `PriceCandidate` / `PackageSpec` / `ParsedLabel` / `UnitMetric` / `ParseConfidence`）
-- `tests/fixtures/`: OCR後想定文字列の固定データ
-- `tests/`: 純粋ロジックの単体テスト
-- `docs/`: 仕様・工程・引き継ぎ資料
-- `public/`: PWA manifest / icons
+Android Chrome優先・ローカルファースト・完全無料。画像はブラウザ内で処理し、OCR結果は必ずユーザー確認を経てからIndexedDBへ保存する。
 
 ## データフロー
-1. OCR結果の生文字列（外部実装未実装）を `parseLabelText(rawText)` へ渡す  
-2. `ParsedLabel` に正規化結果、価格候補、パッケージ情報を格納  
-3. `calculateUnitMetrics(parsed)` で単価系指標を算出  
-4. 将来: UI で確認・編集→保存→履歴に展開
 
-## 重要分離点
-- `parseLabelText` は副作用を持たない
-- `calculateUnitMetrics` は I/O 非依存でテストしやすい
-- UI 側は `ParsedLabel` と `UnitMetric` を受けるのみ
+`Capture/File → Crop/Rotate → minimal preprocessing → Tesseract Worker → Parse → Confirm/Edit → Unit calculation → Dexie transaction`
 
-## PWA基盤
-- `vite.config.ts` で `VitePWA` を有効化
-- `public/manifest.webmanifest` と `icons/` を用意
-- GitHub Pages を想定した `base` 設定に配慮
+- `src/app/App.tsx`: 画面遷移と入力状態。計算式やDB詳細を持たない。
+- `src/features/ocr/`: 画像読込、品質注意、切抜き、前処理、Tesseract Worker再利用。
+- `src/features/product/`: OCR非依存の文字正規化、価格・パッケージ解析、純粋な単価計算。
+- `src/features/storage/`: Dexie schema、完全一致照合、保存transaction。
+- `src/types/commerce.ts`: UI/解析/DBで共有する厳格な型。
+- `tests/fixtures/`: 商品固有のハードコードを防ぐOCR文字列fixture。
+
+## OCR
+
+Tesseract.jsの`jpn+eng` Workerはモジュール内で1回だけ生成し、同じアプリ起動中に再利用する。初回の言語モデル取得失敗（オフラインを含む）はユーザー向けに再撮影・再試行を案内する。OCRから行、座標、confidenceを保持し、価格ラベル語・値札下部・商品番号/容量/通常価格/割引の減点へ使って候補を順位付けする。結果は常に確認画面で修正できる。
+
+## 保存モデル
+
+`Product` は正規化された商品のID情報、`PriceObservation` は特定の時刻・店舗・値札・単価計算結果を保存する。Dexie version 1には明示的なschemaを置き、以降のmigrationは新しい`version()`として追加する。
+
+同一商品照合はJAN完全一致、または同一店舗＋商品番号の完全一致だけを返す。名称や容量が似ているだけでは自動統合しない。
+
+## PWA
+
+Vite PWA pluginがmanifestとservice workerを生成する。GitHub Pages用のbaseは`GITHUB_PAGES_BASE`で指定する。OCR言語モデルの初回取得はprecache対象にせず、ネットワーク不可時は失敗を説明する。
