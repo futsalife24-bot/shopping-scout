@@ -1,0 +1,222 @@
+[
+  {
+    "id": "01",
+    "label": "ANKER",
+    "rawLines": [
+      "79054",
+      "ANKER",
+      "充電器＆ケーブルセット",
+      "B2698H21",
+      "最大70W",
+      "USB-C & USB-C 1.8M",
+      "4,980"
+    ],
+    "expected": {
+      "currentPrice": 4980,
+      "lengthPerItemM": 1.8,
+      "forbiddenPriceCandidates": [79054, 70]
+    }
+  },
+  {
+    "id": "02",
+    "label": "KIRKLAND",
+    "rawLines": [
+      "KIRKLAND SIGNATURE",
+      "トイレットペーパー",
+      "42.9m",
+      "30ロール",
+      "2枚重ね",
+      "2,398"
+    ],
+    "expected": {
+      "currentPrice": 2398,
+      "rollCount": 30,
+      "lengthPerItemM": 42.9,
+      "totalLengthM": 1287,
+      "pricePerRoll": 79.93,
+      "pricePerMeter": 1.86
+    }
+  },
+  {
+    "id": "03",
+    "label": "COREUSE",
+    "rawLines": [
+      "170m",
+      "6ロール × 4パック",
+      "1PLY",
+      "1,998"
+    ],
+    "expected": {
+      "currentPrice": 1998,
+      "rollCount": 24,
+      "totalLengthM": 4080,
+      "pricePerRoll": 83.25,
+      "pricePerMeter": 0.49
+    }
+  },
+  {
+    "id": "04",
+    "label": "LISTERINE",
+    "rawLines": [
+      "リステリン",
+      "トータルケアPLUS",
+      "1L × 4本",
+      "通常価格 2,998",
+      "レジにて割引 -600",
+      "2,398"
+    ],
+    "expected": {
+      "currentPrice": 2398,
+      "regularPrice": 2998,
+      "discountAmount": 600,
+      "totalVolumeMl": 4000,
+      "totalVolumeL": 4,
+      "pricePerLiter": 599.5,
+      "discountRate": 20
+    }
+  },
+  {
+    "id": "05",
+    "label": "NONIO",
+    "rawLines": [
+      "NONIOプラス ホワイトニング",
+      "1000mL × 3本",
+      "1,998"
+    ],
+    "expected": {
+      "currentPrice": 1998,
+      "itemCount": 3,
+      "totalVolumeMl": 3000,
+      "totalVolumeL": 3,
+      "pricePerLiter": 666
+    }
+  },
+  {
+    "id": "06",
+    "label": "NMN",
+    "rawLines": [
+      "NMN",
+      "100mg × 120粒",
+      "1日目安2粒",
+      "60日分",
+      "3,198"
+    ],
+    "expected": {
+      "currentPrice": 3198,
+      "itemCount": 120,
+      "dailyDose": 2,
+      "totalDaySupply": 60,
+      "pricePerDay": 53.3,
+      "forbiddenPriceCandidates": [100]
+    }
+  },
+  {
+    "id": "07",
+    "label": "COLLAGEN",
+    "rawLines": [
+      "コラリッチ",
+      "コラーゲンショット",
+      "50mL × 20本",
+      "2,880"
+    ],
+    "expected": {
+      "currentPrice": 2880,
+      "itemCount": 20,
+      "totalVolumeMl": 1000,
+      "pricePerItem": 144,
+      "pricePerLiter": 2880
+    }
+  },
+  {
+    "id": "08",
+    "label": "EQUOL",
+    "rawLines": [
+      "エクオール10mg",
+      "180粒",
+      "1日4粒",
+      "45日分",
+      "3,948"
+    ],
+    "expected": {
+      "currentPrice": 3948,
+      "itemCount": 180,
+      "dailyDose": 4,
+      "totalDaySupply": 45,
+      "pricePerDay": 87.73
+    }
+  },
+  {
+    "id": "09",
+    "label": "SOAP",
+    "rawLines": [
+      "ボタニカルソープ",
+      "200g × 8個",
+      "2,198"
+    ],
+    "expected": {
+      "currentPrice": 2198,
+      "itemCount": 8,
+      "totalWeightG": 1600,
+      "pricePerItem": 274.75,
+      "pricePer100g": 137.38
+    }
+  },
+  {
+    "id": "10",
+    "label": "NAKAMURAYA",
+    "rawLines": [
+      "574036",
+      "新宿中村屋",
+      "ビーフカリー",
+      "200g × 10袋",
+      "1,898"
+    ],
+    "expected": {
+      "currentPrice": 1898,
+      "itemCount": 10,
+      "totalWeightG": 2000,
+      "pricePerServing": 189.8,
+      "pricePer100g": 94.9,
+      "forbiddenPriceCandidates": [574036]
+    }
+  },
+  {
+    "id": "11",
+    "label": "SHIJIMI",
+    "rawLines": [
+      "神州一味噌",
+      "殻付きしじみ汁",
+      "16食",
+      "通常価格899",
+      "レジにて割引 -200",
+      "699"
+    ],
+    "expected": {
+      "currentPrice": 699,
+      "regularPrice": 899,
+      "discountAmount": 200,
+      "servingCount": 16,
+      "pricePerServing": 43.69,
+      "discountRate": 22.2
+    }
+  },
+  {
+    "id": "12",
+    "label": "AMARA",
+    "rawLines": [
+      "AMARA",
+      "本場のバターチキン 2P",
+      "ハニーバターチキン 2P",
+      "各170g",
+      "1,498"
+    ],
+    "expected": {
+      "currentPrice": 1498,
+      "itemCount": 4,
+      "totalWeightG": 680,
+      "pricePerServing": 374.5,
+      "pricePer100g": 220.29,
+      "forbiddenPriceCandidates": [2]
+    }
+  }
+]
