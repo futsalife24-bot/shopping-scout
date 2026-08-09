@@ -11,6 +11,9 @@
 - OCR候補の手修正、再解析、単価表示、エラー案内。
 - Dexie version 1でのProduct/PriceObservation分離、完全一致照合、transaction保存。
 - 初回記録時にお得度を判定しない保存完了表示。
+- 大きな画像は編集前に最大2560px、OCR対象は最大2048pxへ制限し、カメラの解像度要求も上限を設けた。
+- カメラ開始のキャンセル競合でstreamを停止し、OCR Worker初期化失敗後は同セッションで再試行できるようにした。
+- OCR失敗時の手入力導線、PLYの専用解析、価格候補の基本的な日付・品番・単価除外、割引三値の整合チェックを追加した。
 
 ## 主要ファイル
 
@@ -28,7 +31,7 @@
 2026-08-09に以下を通過。
 
 - `npm run typecheck`: success
-- `npm run test:run`: 3 files / 16 tests passed
+- `npm run test:run`: 3 files / 17 tests passed
 - `npm run build`: success（PWA service worker生成を確認）
 - ローカルPWAを393x852で確認。画像選択→切抜き→OCR→手修正→保存完了まで操作済み。
 

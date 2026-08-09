@@ -13,6 +13,19 @@ export interface CropRect {
   height: number;
 }
 
+const EDITING_MAX_SIDE = 2560;
+const OCR_MAX_SIDE = 2048;
+const MAX_EDITING_PIXELS = 16_000_000;
+
+function scaledSize(width: number, height: number, maxSide: number): { width: number; height: number } {
+  const scale = Math.min(1, maxSide / Math.max(width, height));
+  return { width: Math.max(1, Math.round(width * scale)), height: Math.max(1, Math.round(height * scale)) };
+}
+
+function canvasToDataUrl(canvas: HTMLCanvasElement): string {
+  return canvas.toDataURL('image/jpeg', 0.9);
+}
+
 export function loadImage(source: string): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const image = new Image();
@@ -20,6 +33,33 @@ export function loadImage(source: string): Promise<HTMLImageElement> {
     image.onerror = () => reject(new Error('画像を読み込めませんでした。別の画像を選んでください。'));
     image.src = source;
   });
+}
+
+/**
+ * Makes a bounded editing copy before the crop UI retains the image. This keeps
+ * phone photos from creating several full-resolution canvases and base64 copies.
+ */
+export async function prepareImageForEditing(file: File): Promise<string> {
+  if (file.size > 20 * 1024 * 1024) {
+    throw new Error('画像ファイルが大きすぎます。20MB以下の画像を選んでください。');
+  }
+  const objectUrl = URL.createObjectURL(file);
+  try {
+    const image = await loadImage(objectUrl);
+    if (image.naturalWidth * image.naturalHeight > MAX_EDITING_PIXELS) {
+      throw new Error('画像の解像度が高すぎます。小さめの画像を選んでください。');
+    }
+    const { width, height } = scaledSize(image.naturalWidth, image.naturalHeight, EDITING_MAX_SIDE);
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const context = canvas.getContext('2d');
+    if (!context) throw new Error('画像を準備できませんでした。');
+    context.drawImage(image, 0, 0, width, height);
+    return canvasToDataUrl(canvas);
+  } finally {
+    URL.revokeObjectURL(objectUrl);
+  }
 }
 
 export function inspectImageQuality(image: HTMLImageElement): ImageQuality {
@@ -64,10 +104,12 @@ export async function cropAndRotate(source: string, crop: CropRect, rotation: nu
     height: Math.min(image.naturalHeight - sourceY, crop.height * scaleY)
   };
   const rotationQuarter = ((rotation % 360) + 360) % 360;
+  const outputSize = scaledSize(sourceCrop.width, sourceCrop.height, OCR_MAX_SIDE);
+  const outputScale = outputSize.width / sourceCrop.width;
   const canvas = document.createElement('canvas');
   const sideways = rotationQuarter === 90 || rotationQuarter === 270;
-  canvas.width = Math.round(sideways ? sourceCrop.height : sourceCrop.width);
-  canvas.height = Math.round(sideways ? sourceCrop.width : sourceCrop.height);
+  canvas.width = Math.round(sideways ? outputSize.height : outputSize.width);
+  canvas.height = Math.round(sideways ? outputSize.width : outputSize.height);
   const context = canvas.getContext('2d');
   if (!context) throw new Error('画像の切り抜きを開始できませんでした。');
   context.save();
@@ -79,23 +121,20 @@ export async function cropAndRotate(source: string, crop: CropRect, rotation: nu
     sourceCrop.y,
     sourceCrop.width,
     sourceCrop.height,
-    -sourceCrop.width / 2,
-    -sourceCrop.height / 2,
-    sourceCrop.width,
-    sourceCrop.height
+    -(sourceCrop.width * outputScale) / 2,
+    -(sourceCrop.height * outputScale) / 2,
+    sourceCrop.width * outputScale,
+    sourceCrop.height * outputScale
   );
   context.restore();
-  return canvas.toDataURL('image/jpeg', 0.9);
+  return canvasToDataUrl(canvas);
 }
 
 /** Downsize only very large photos and make a modest grayscale contrast adjustment. */
 export async function preprocessForOcr(source: string): Promise<{ image: string; elapsedMs: number }> {
   const startedAt = performance.now();
   const image = await loadImage(source);
-  const longestSide = Math.max(image.naturalWidth, image.naturalHeight);
-  const scale = longestSide > 2048 ? 2048 / longestSide : 1;
-  const width = Math.max(1, Math.round(image.naturalWidth * scale));
-  const height = Math.max(1, Math.round(image.naturalHeight * scale));
+  const { width, height } = scaledSize(image.naturalWidth, image.naturalHeight, OCR_MAX_SIDE);
   const canvas = document.createElement('canvas');
   canvas.width = width;
   canvas.height = height;

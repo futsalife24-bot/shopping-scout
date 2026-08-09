@@ -89,4 +89,17 @@ describe('label parser foundation fixtures', () => {
       }
     });
   });
+
+  it('does not treat PLY, dates, product codes, or unit prices as the current price', () => {
+    const tissue = calculateUnitMetrics(parseLabelText('42.9m\n30ロール\n2PLY\n2,398'));
+    expect(tissue.rollCount).toBe(30);
+    expect(tissue.itemCount).toBe(30);
+    expect(tissue.ply).toBe(2);
+
+    const parsed = parseLabelText('価格 1,498円\n賞味期限 2026/08/09\n商品番号 4980\n1食150円');
+    expect(parsed.currentPrice).toBe(1498);
+    expect(parsed.priceCandidates.map((candidate) => candidate.amount)).not.toContain(2026);
+    expect(parsed.priceCandidates.map((candidate) => candidate.amount)).not.toContain(4980);
+    expect(parsed.priceCandidates.map((candidate) => candidate.amount)).not.toContain(150);
+  });
 });

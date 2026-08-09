@@ -90,6 +90,9 @@ function createPackageComponent(
 function parseLinePriceCandidates(line: string, sourceLine: number): PriceLineCandidate[] {
   const candidates: PriceLineCandidate[] = [];
   const normalizedLine = normalizeLine(line);
+  const isDateLine = /\b(?:19|20)\d{2}[/.\-]\d{1,2}[/.\-]\d{1,2}\b/.test(normalizedLine);
+  const isProductCodeLine = /(?:商品番号|品番|jan|\bno\.?)/iu.test(normalizedLine);
+  const isUnitPriceLine = /(?:\d+\s*)?(?:個|本|食|m|g|ml|l)\s*(?:あたり|当たり)?\s*[0-9][0-9,]*\s*円/iu.test(normalizedLine);
 
   const regularMatch = normalizedLine.match(/通常価格\s*([0-9][0-9,]*)/);
   if (regularMatch) {
@@ -120,6 +123,8 @@ function parseLinePriceCandidates(line: string, sourceLine: number): PriceLineCa
     const prev = normalizedLine[start - 1] ?? '';
     const next = normalizedLine[start + raw.length] ?? '';
     const hasPriceContext = /(?:円|税込|価格|値札)/u.test(normalizedLine);
+
+    if (isDateLine || isUnitPriceLine || (isProductCodeLine && !hasPriceContext)) continue;
 
     if (/[a-zA-ZＡ-ｚぁ-んァ-ヶ一-龯]/u.test(prev) && !hasPriceContext) continue;
     if (/[a-zA-ZＡ-ｚぁ-んァ-ヶ一-龯]/u.test(next) && !hasPriceContext) continue;
@@ -173,6 +178,10 @@ function parsePackageSpec(lines: string[]): PackageSpec {
     const normalizedLine = normalizeLine(line);
     if (!normalizedLine) return;
 
+    const plyMatch = normalizedLine.match(/\b([12])\s*ply\b/i);
+    const plyRange = plyMatch?.index === undefined ? undefined : [plyMatch.index, plyMatch.index + plyMatch[0].length] as const;
+    if (plyMatch) spec.ply = Number(plyMatch[1]) as 1 | 2;
+
     const servingMatch = normalizedLine.match(/(\d+)\s*日分/);
     if (servingMatch) {
       const value = Number(servingMatch[1]);
@@ -215,6 +224,7 @@ function parsePackageSpec(lines: string[]): PackageSpec {
       const end = start + match[0].length;
       const overlaps = usedRanges.some(([from, to]) => start >= from && end <= to);
       if (overlaps) continue;
+      if (plyRange && start >= plyRange[0] && end <= plyRange[1]) continue;
       if (dailyDoseRange && start >= dailyDoseRange[0] && start < dailyDoseRange[1]) {
         continue;
       }
@@ -402,6 +412,7 @@ export function calculateUnitMetrics(parsed: ParsedLabel): UnitMetric {
     totalWeightG,
     totalDaySupply: parsed.packageSpec.supplyDays ?? undefined,
     dailyDose: parsed.packageSpec.dailyDose ?? undefined,
+    ply: parsed.packageSpec.ply,
     pricePerRoll: resolvedRoll > 0 && parsed.currentPrice ? Number((parsed.currentPrice / resolvedRoll).toFixed(4)) : undefined,
     pricePerMeter: totalLengthM && parsed.currentPrice ? Number((parsed.currentPrice / totalLengthM).toFixed(4)) : undefined,
     pricePerItem: itemCount > 0 && parsed.currentPrice ? Number((parsed.currentPrice / itemCount).toFixed(4)) : undefined,

@@ -54,6 +54,7 @@ export interface PackageSpec {
   weights: PackageComponent[];
   days: PackageComponent[];
   multipliers: PackageMultiplier[];
+  ply?: 1 | 2;
   dailyDose?: number;
   supplyDays?: number;
   notes: string[];
@@ -88,6 +89,7 @@ export interface UnitMetric {
   totalWeightG?: number;
   totalDaySupply?: number;
   dailyDose?: number;
+  ply?: 1 | 2;
   pricePerRoll?: number;
   pricePerMeter?: number;
   pricePerItem?: number;

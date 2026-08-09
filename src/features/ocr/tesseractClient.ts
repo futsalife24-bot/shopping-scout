@@ -4,7 +4,7 @@ import { preprocessForOcr } from './imageTools';
 
 let workerPromise: ReturnType<typeof createWorker> | undefined;
 
-function getWorker(onProgress: (progress: number, label: string) => void) {
+async function getWorker(onProgress: (progress: number, label: string) => void) {
   if (!workerPromise) {
     workerPromise = createWorker('jpn+eng', 1, {
       logger: (message: LoggerMessage) => {
@@ -12,7 +12,13 @@ function getWorker(onProgress: (progress: number, label: string) => void) {
       }
     });
   }
-  return workerPromise;
+  const pendingWorker = workerPromise;
+  try {
+    return await pendingWorker;
+  } catch (error) {
+    if (workerPromise === pendingWorker) workerPromise = undefined;
+    throw error;
+  }
 }
 
 function extractLines(blocks: Awaited<ReturnType<typeof createWorker>> extends never ? never : unknown): OcrLine[] {
