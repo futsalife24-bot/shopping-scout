@@ -285,7 +285,7 @@ export function App() {
 
       {step === 'home' && <section className="card home-card">
         <h2>値札を記録する</h2><p>OCRの結果は自動保存しません。価格・容量・個数を確認してから端末に保存します。</p>
-        <div className="home-actions"><button className="button primary" onClick={() => void startCamera()}>値札を撮る</button><label className="button secondary">画像を選ぶ<input type="file" accept="image/*" capture="environment" onChange={(event) => void selectImage(event.target.files?.[0])} /></label></div>
+        <div className="home-actions"><button className="button primary" onClick={() => void startCamera()}>値札を撮る</button><label className="button secondary">画像を選ぶ<input type="file" accept="image/*" onChange={(event) => void selectImage(event.target.files?.[0])} /></label></div>
         <p className="muted">画像は原則として端末の外へ送信しません。初回OCRモデル取得時だけ通信が必要な場合があります。</p>
       </section>}
 
